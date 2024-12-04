@@ -1,4 +1,3 @@
-import { useState } from "react";
 import PokemonBattle from "./PokemonBattle";
 
 function App() {
