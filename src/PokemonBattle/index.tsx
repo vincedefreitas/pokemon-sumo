@@ -49,11 +49,12 @@ function PokemonBattle() {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="flex gap-20">
+      <div className="text-center lg:flex lg:items-center gap-20">
         <Pokemon pokemon={pokemon1}></Pokemon>
+        <p className="py-12 text-red-400 text-2xl">VS</p>
         <Pokemon pokemon={pokemon2}></Pokemon>
       </div>
-      <h2 className="text-3xl pt-12">{message}</h2>
+      <h2 className="text-3xl py-12">{message}</h2>
     </div>
   );
 }
