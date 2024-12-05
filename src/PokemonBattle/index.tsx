@@ -10,43 +10,50 @@ export interface PokemonData {
 function PokemonBattle() {
   const [pokemon1, setPokemon1] = useState<PokemonData>({
     image: "",
-    name: "",
+    name: "missingno",
     weight: 0,
   });
   const [pokemon2, setPokemon2] = useState<PokemonData>({
     image: "",
-    name: "",
+    name: "missingno",
     weight: 0,
   });
+  const [message, setMessage] = useState<string>("");
 
-  let randomNum = Math.floor(Math.random() * (151 - 1 + 1) + 1);
-  let randomNum2 = Math.floor(Math.random() * (151 - 1 + 1) + 1);
+  async function getPokemon(
+    stateSetter: React.Dispatch<React.SetStateAction<PokemonData>>
+  ) {
+    const randomNum = Math.floor(Math.random() * (151 - 1 + 1) + 1);
+    const json = await fetch("https://pokeapi.co/api/v2/pokemon/" + randomNum);
+    const pokemon = await json.json();
+    const image = pokemon.sprites.other["official-artwork"].front_default ?? "";
+    const name = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
+    const weight = pokemon.weight ?? 0;
+    stateSetter({ image: image, name: name, weight: weight });
+  }
 
   useEffect(() => {
-    fetch("https://pokeapi.co/api/v2/pokemon/" + randomNum)
-      .then((response) => response.json())
-      .then((pokemon) => {
-        setPokemon1({
-          image: pokemon.sprites.other["official-artwork"].front_default,
-          name: pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1),
-          weight: pokemon.weight,
-        });
-      });
-    fetch("https://pokeapi.co/api/v2/pokemon/" + randomNum2)
-      .then((response) => response.json())
-      .then((pokemon) => {
-        setPokemon2({
-          image: pokemon.sprites.other["official-artwork"].front_default,
-          name: pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1),
-          weight: pokemon.weight,
-        });
-      });
+    getPokemon(setPokemon1);
+    getPokemon(setPokemon2);
   }, []);
 
+  useEffect(() => {
+    if (pokemon1.weight === pokemon2.weight) {
+      setMessage("It's a draw!");
+    } else if (pokemon1.weight > pokemon2.weight) {
+      setMessage(`${pokemon1.name} wins!`);
+    } else {
+      setMessage(`${pokemon2.name} wins!`);
+    }
+  }, [pokemon1, pokemon2]);
+
   return (
-    <div className="flex">
-      <Pokemon pokemon={pokemon1}></Pokemon>
-      <Pokemon pokemon={pokemon2}></Pokemon>
+    <div className="flex flex-col items-center">
+      <div className="flex gap-20">
+        <Pokemon pokemon={pokemon1}></Pokemon>
+        <Pokemon pokemon={pokemon2}></Pokemon>
+      </div>
+      <h2 className="text-3xl pt-12">{message}</h2>
     </div>
   );
 }
